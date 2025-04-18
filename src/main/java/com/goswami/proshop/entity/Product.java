@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 public class Product {
+    @Not
     private String name;
     private String image;
     private String description;

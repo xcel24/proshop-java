@@ -16,33 +16,38 @@ import java.util.Optional;
 @Slf4j
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+  private final ProductService productService;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Product>> getAllProducts(){
-        List<Product> products = productService.getAllProducts();
+  @Autowired
+  public ProductController(ProductService productService) {
+    this.productService = productService;
+  }
 
-        return new ResponseEntity<>(products, HttpStatus.OK);
+  @GetMapping("/all")
+  public ResponseEntity<List<Product>> getAllProducts() {
+    List<Product> products = productService.getAllProducts();
+
+    return new ResponseEntity<>(products, HttpStatus.OK);
+  }
+
+  @GetMapping("/id/{id}")
+  public ResponseEntity<Product> getProductById(@PathVariable String id) {
+    Optional<Product> product = productService.getProductById(id);
+
+      if (product.isPresent()) {
+          return new ResponseEntity<>(product.get(), HttpStatus.OK);
+      }
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+  }
+
+  @PostMapping("")
+  public ResponseEntity<Void> createProduct(@RequestBody Product product) {
+    try {
+      return new ResponseEntity<>(HttpStatus.CREATED);
+    } catch (RuntimeException e) {
+      log.error("Exception while saving the product {}", e.getMessage());
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
-
-    @GetMapping("/id/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable String id) {
-        Optional<Product> product = productService.getProductById(id);
-
-        if(product.isPresent())return new ResponseEntity<>(product.get(), HttpStatus.OK);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-    }
-
-    @PostMapping("")
-    public ResponseEntity<Void> createProduct(@RequestBody Product product) {
-        try {
-            Product savedProduct = productService.saveProduct(product);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (RuntimeException e){
-            log.error("Exception while saving the product " + e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
+  }
 }
